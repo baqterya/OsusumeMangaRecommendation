@@ -5,12 +5,13 @@ plugins {
 
 android {
     namespace = "com.baqterya.mangarecommendation"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.baqterya.mangarecommendation"
         minSdk = 29
-        targetSdk = 33
+        //noinspection EditedTargetSdkVersion
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -66,4 +67,11 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+    implementation("androidx.compose.material:material:1.5.3")
+    implementation("androidx.compose.material:material-icons-core:1.5.3")
+    implementation("androidx.compose.material:material-icons-extended:1.5.3")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0-alpha02")
+    implementation("androidx.navigation:navigation-compose:2.7.4")
+    implementation("androidx.constraintlayout:constraintlayout-compose:1.1.0-alpha13")
 }
