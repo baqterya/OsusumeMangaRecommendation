@@ -68,9 +68,6 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
-    implementation("androidx.compose.material:material:1.5.3")
-    implementation("androidx.compose.material:material-icons-core:1.5.3")
-    implementation("androidx.compose.material:material-icons-extended:1.5.3")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0-alpha02")
     implementation("androidx.navigation:navigation-compose:2.7.4")
     implementation("androidx.constraintlayout:constraintlayout-compose:1.1.0-alpha13")
