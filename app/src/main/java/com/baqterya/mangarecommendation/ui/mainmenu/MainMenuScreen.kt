@@ -106,7 +106,7 @@ fun Logo() {
 
 @Composable
 fun WeeklyChallenge() {
-    val defaultDominantColor = MaterialTheme.colorScheme.surface
+    val defaultDominantColor = MaterialTheme.colorScheme.surfaceVariant
     var dominantColor by remember {
         mutableStateOf(defaultDominantColor)
     }
@@ -185,16 +185,9 @@ fun ReadingProgress(modifier: Modifier) {
     }
     Box(
         modifier = modifier
-//            .fillMaxWidth()
             .height(12.dp)
             .clip(CircleShape)
-            .background(
-                if (isSystemInDarkTheme()) {
-                    Color(0xFF505050)
-                } else {
-                    Color.DarkGray
-                }
-            )
+            .background(MaterialTheme.colorScheme.surfaceVariant)
     ){
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
