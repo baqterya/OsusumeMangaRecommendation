@@ -11,12 +11,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
@@ -56,7 +58,23 @@ fun MainMenuScreen(navController: NavController) {
     ) {
         Column {
             Logo()
-            WeeklyChallenge()
+            //weekly
+            ChallengeTile(
+                tileTitle = "Weekly Challenge",
+                coverArt = R.drawable.dummy_cover,
+                mangaTitle = "Steel Ball Run",
+                currentChapter = 43,
+                totalChapters = 96
+            )
+            //personal
+            ChallengeTile(
+                tileTitle = "Personal Challenge",
+                coverArt = "https://cdn.myanimelist.net/images/manga/1/157897.jpg",
+                mangaTitle = "Berserk",
+                currentChapter = 311,
+                totalChapters = 373
+            )
+            RecommendationsContainer()
         }
     }
 }
@@ -82,9 +100,9 @@ fun Logo() {
                 contentScale = ContentScale.Fit
             )
 
-            val text = "13" //TODO MAKE INTO MUTABLE STATE
+            val dummyText = "13"
             Text(
-                text = text,
+                text = dummyText,
                 color = MaterialTheme.colorScheme.onPrimary,
                 fontSize = 18.sp,
                 modifier = Modifier
@@ -104,7 +122,13 @@ fun Logo() {
 }
 
 @Composable
-fun WeeklyChallenge() {
+fun ChallengeTile(
+    tileTitle: String,
+    coverArt: Any,
+    mangaTitle: String,
+    currentChapter: Int,
+    totalChapters: Int,
+) {
     val defaultDominantColor = MaterialTheme.colorScheme.surfaceVariant
     var dominantColor by remember {
         mutableStateOf(defaultDominantColor)
@@ -112,7 +136,6 @@ fun WeeklyChallenge() {
     ConstraintLayout(
         modifier = Modifier
             .padding(20.dp)
-            .fillMaxWidth()
             .fillMaxWidth()
             .shadow(5.dp, RoundedCornerShape(10.dp))
             .clip(RoundedCornerShape(10.dp))
@@ -126,23 +149,25 @@ fun WeeklyChallenge() {
             )
             .clickable { }
     ) {
-        val (progressBar, coverImage, topText) = createRefs()
+        val (progressBar, coverImage, topText, chapterCounterText) = createRefs()
 
         Text(
-            text = "Weekly Challenge",
+            text = tileTitle,
             fontSize = 20.sp,
-            modifier = Modifier.padding(10.dp).constrainAs(topText){
-                top.linkTo(parent.top)
-                start.linkTo(parent.start)
-            }
+            modifier = Modifier
+                .padding(10.dp)
+                .constrainAs(topText) {
+                    top.linkTo(parent.top)
+                    start.linkTo(parent.start)
+                }
         )
         SubcomposeAsyncImage(
-            model = R.drawable.dummy_cover,
-            contentDescription = "Steel Ball Run",
+            model = coverArt,
+            contentDescription = mangaTitle,
             modifier = Modifier
                 .height(170.dp)
                 .alpha(0.8f)
-                .constrainAs(coverImage){
+                .constrainAs(coverImage) {
                     top.linkTo(parent.top)
                     bottom.linkTo(parent.bottom)
                     end.linkTo(parent.end)
@@ -158,24 +183,44 @@ fun WeeklyChallenge() {
                 )
             },
         )
-        ReadingProgress(modifier = Modifier.padding(end = 10.dp).constrainAs(progressBar){
-            bottom.linkTo(parent.bottom)
-            start.linkTo(parent.start)
-            end.linkTo(coverImage.start)
-            width = Dimension.fillToConstraints
-        })
+        Text(
+            text = "${currentChapter}/${totalChapters}",
+            fontSize = 17.sp,
+            modifier = Modifier
+                .padding(10.dp)
+                .constrainAs(chapterCounterText) {
+                    bottom.linkTo(progressBar.top)
+                    start.linkTo(parent.start)
+                }
+        )
+        ReadingProgress(
+            currentChapter = currentChapter,
+            totalChapters = totalChapters,
+            modifier = Modifier
+                .padding(end = 10.dp)
+                .constrainAs(progressBar) {
+                    bottom.linkTo(parent.bottom)
+                    start.linkTo(parent.start)
+                    end.linkTo(coverImage.start)
+                    width = Dimension.fillToConstraints
+                }
+        )
     }
 }
 
 
 @Composable
-fun ReadingProgress(modifier: Modifier) {
+fun ReadingProgress(
+    modifier: Modifier,
+    currentChapter: Int,
+    totalChapters: Int
+) {
     var animationPlayed by remember {
         mutableStateOf(false)
     }
 
     val currentPercent = animateFloatAsState(
-        targetValue = if (animationPlayed) 0.6f else 0f,
+        targetValue = if (animationPlayed) currentChapter/totalChapters.toFloat() else 0f,
         animationSpec = tween(1000, 0),
         label = ""
     )
@@ -197,6 +242,52 @@ fun ReadingProgress(modifier: Modifier) {
                 .clip(CircleShape)
                 .background(MaterialTheme.colorScheme.primary)
         ){}
+    }
+}
+
+@Composable
+fun RecommendationsContainer() {
+    Text(text = "More Recommendations", fontSize = 22.sp, modifier = Modifier.padding(start=20.dp, top=20.dp))
+    LazyRow(
+        contentPadding = PaddingValues(15.dp),
+        horizontalArrangement = Arrangement.spacedBy(20.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(180.dp)
+    ) {
+        val testList = listOf(
+            listOf("Rave", "https://cdn.myanimelist.net/images/manga/3/255624.jpg"),
+            listOf("Ranma ½", "https://cdn.myanimelist.net/images/manga/1/156534.jpg"),
+            listOf("Pita-Ten", "https://cdn.myanimelist.net/images/manga/3/191236.jpg"),
+            listOf("Le Chevalier d'Eon", "https://cdn.myanimelist.net/images/manga/1/1068l.jpg"),
+            listOf("Gakuen Heaven", "https://cdn.myanimelist.net/images/manga/3/5199.jpg"),
+        )
+        items(5) {
+            RecommendationTile(testList[it][0], testList[it][1])
+        }
+    }
+}
+
+@Composable
+fun RecommendationTile(mangaTitle: String, coverArt: Any) {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(10.dp))
+            .height(160.dp)
+            .clickable { }
+    ) {
+        SubcomposeAsyncImage(
+            model = coverArt,
+            contentDescription = mangaTitle,
+            modifier = Modifier.fillMaxHeight(),
+            contentScale = ContentScale.FillHeight,
+            loading = {
+                CircularProgressIndicator(
+                    modifier = Modifier.scale(0.5f)
+                )
+            },
+        )
+//        Text(text = mangaTitle, fontSize = 12.sp)
     }
 }
 
