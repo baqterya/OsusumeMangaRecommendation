@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.baqterya.mangarecommendation.ui.theme.MangaRecommendationTheme
 import com.baqterya.mangarecommendation.ui.mainmenu.MainMenuScreen
+import com.baqterya.mangarecommendation.ui.mangadetail.MangaDetailScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -17,10 +18,13 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 NavHost(
                     navController = navController,
-                    startDestination = "main_menu_screen",
+                    startDestination = "manga_detail_screen",
                 ) {
                     composable("main_menu_screen") {
-                        MainMenuScreen(navController)
+                        MainMenuScreen(navController = navController)
+                    }
+                    composable("manga_detail_screen") {
+                        MangaDetailScreen(navController = navController)
                     }
                 }
             }

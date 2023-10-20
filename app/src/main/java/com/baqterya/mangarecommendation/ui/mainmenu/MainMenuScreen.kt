@@ -198,6 +198,7 @@ fun ChallengeTile(
             totalChapters = totalChapters,
             modifier = Modifier
                 .padding(end = 10.dp)
+                .height(12.dp)
                 .constrainAs(progressBar) {
                     bottom.linkTo(parent.bottom)
                     start.linkTo(parent.start)
@@ -229,7 +230,6 @@ fun ReadingProgress(
     }
     Box(
         modifier = modifier
-            .height(12.dp)
             .clip(CircleShape)
             .background(MaterialTheme.colorScheme.surfaceVariant)
     ){
