@@ -207,131 +207,88 @@ fun MangaDetailCover(modifier: Modifier) {
 
 @Composable
 fun MangaDetailParamSection() {
-    //TODO ZMIENIĆ TO SPOWROTEM W COLUMN/ROWS ŻEBY NIE TRZEBA BYŁO CONSTRAINOWAĆ WSZYSTKIEGO
-    ConstraintLayout(modifier = Modifier
+    val fontSize = 16.sp
+    Row(modifier = Modifier
         .background(MaterialTheme.colorScheme.surfaceVariant)
-        .padding(10.dp)
-        .clickable { }
     ) {
-        val (
-            ranking, rankingVal,
-            score, scoreVal,
-            author, authorVal,
-            chapters, chaptersVal,
-            status, statusVal
-        ) = createRefs()
-        val fontSize = 16.sp
-        Text(
-            text = "Ranking",
-            fontSize = fontSize,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier
-                .padding(5.dp)
-                .constrainAs(ranking) {
-                    top.linkTo(parent.top)
-                    start.linkTo(parent.start)
-                }
-        )
-        Text(
-            text = "#2",
-            fontSize = fontSize,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier
-                .padding(5.dp)
-                .constrainAs(rankingVal) {
-                    top.linkTo(parent.top)
-                    start.linkTo(chapters.end)
-                }
-        )
-        Text(
-            text = "Score",
-            fontSize = fontSize,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier
-                .padding(5.dp)
-                .constrainAs(score) {
-                    top.linkTo(ranking.bottom)
-                    start.linkTo(parent.start)
-                }
-        )
-        Text(
-            text = "9.30",
-            fontSize = fontSize,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier
-                .padding(5.dp)
-                .constrainAs(scoreVal) {
-                    top.linkTo(rankingVal.bottom)
-                    start.linkTo(rankingVal.start)
-                }
-        )
-        Text(
-            text = "Author",
-            fontSize = fontSize,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier
-                .padding(5.dp)
-                .constrainAs(author) {
-                    top.linkTo(score.bottom)
-                    start.linkTo(parent.start)
-                }
-        )
-        Text(
-            text = "Araki, Hirohiko",
-            fontSize = fontSize,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier
-                .padding(5.dp)
-                .constrainAs(authorVal) {
-                    top.linkTo(scoreVal.bottom)
-                    start.linkTo(rankingVal.start)
-                    end.linkTo(parent.end)
-                }
-        )
-        Text(
-            text = "Chapters",
-            fontSize = fontSize,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier
-                .padding(5.dp)
-                .constrainAs(chapters) {
-                    top.linkTo(author.bottom)
-                    start.linkTo(parent.start)
-                }
-        )
-        Text(
-            text = "96",
-            fontSize = fontSize,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier
-                .padding(5.dp)
-                .constrainAs(chaptersVal) {
-                    top.linkTo(authorVal.bottom)
-                    start.linkTo(rankingVal.start)
-                }
-        )
-        Text(
-            text = "Status",
-            fontSize = fontSize,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier
-                .padding(5.dp)
-                .constrainAs(status) {
-                    top.linkTo(chapters.bottom)
-                    start.linkTo(parent.start)
-                }
-        )
-        Text(
-            text = "Finished",
-            fontSize = fontSize,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier
-                .padding(5.dp)
-                .constrainAs(statusVal) {
-                    top.linkTo(chaptersVal.bottom)
-                    start.linkTo(rankingVal.start)
-                }
-        )
+        Column(modifier = Modifier
+            .padding(10.dp)
+        ) {
+            Text(
+                text = "Ranking",
+                fontSize = fontSize,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier
+                    .padding(5.dp)
+            )
+            Text(
+                text = "Score",
+                fontSize = fontSize,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier
+                    .padding(5.dp)
+            )
+            Text(
+                text = "Author",
+                fontSize = fontSize,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier
+                    .padding(5.dp)
+            )
+            Text(
+                text = "Chapters",
+                fontSize = fontSize,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier
+                    .padding(5.dp)
+            )
+            Text(
+                text = "Status",
+                fontSize = fontSize,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier
+                    .padding(5.dp)
+            )
+        }
+        Column(modifier = Modifier
+            .padding(10.dp)
+        ) {
+            Text(
+                text = "#2",
+                fontSize = fontSize,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier
+                    .padding(5.dp)
+            )
+            Text(
+                text = "9.30",
+                fontSize = fontSize,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier
+                    .padding(5.dp)
+            )
+            Text(
+                text = "Araki, Hirohiko",
+                fontSize = fontSize,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier
+                    .padding(5.dp)
+            )
+            Text(
+                text = "96",
+                fontSize = fontSize,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier
+                    .padding(5.dp)
+            )
+            Text(
+                text = "Finished",
+                fontSize = fontSize,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier
+                    .padding(5.dp)
+            )
+        }
     }
 }
 
