@@ -49,6 +49,7 @@ import androidx.navigation.NavController
 import androidx.palette.graphics.Palette
 import com.baqterya.mangarecommendation.R
 import coil.compose.SubcomposeAsyncImage
+import com.baqterya.mangarecommendation.util.calcDominantColor
 
 @Composable
 fun MainMenuScreen(navController: NavController) {
@@ -287,16 +288,5 @@ fun RecommendationTile(mangaTitle: String, coverArt: Any) {
                 )
             },
         )
-//        Text(text = mangaTitle, fontSize = 12.sp)
-    }
-}
-
-fun calcDominantColor(drawable: Drawable, onFinish: (Color) -> Unit) {
-    val bitmap = (drawable as BitmapDrawable).bitmap.copy(Bitmap.Config.ARGB_8888, true)
-
-    Palette.from(bitmap).generate { palette ->
-        palette?.dominantSwatch?.rgb?.let { colorValue ->
-            onFinish(Color(colorValue))
-        }
     }
 }

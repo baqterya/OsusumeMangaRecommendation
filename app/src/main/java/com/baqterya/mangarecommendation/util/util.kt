@@ -1,5 +1,8 @@
 package com.baqterya.mangarecommendation.util
 
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,6 +22,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
+import androidx.palette.graphics.Palette
 import timber.log.Timber
 
 sealed class Resource<T>(val data: T? = null, val message: String? = null) {
@@ -100,5 +104,15 @@ data class FontSizeRange(
 
     companion object {
         private val DEFAULT_TEXT_STEP = 1.sp
+    }
+}
+
+fun calcDominantColor(drawable: Drawable, onFinish: (Color) -> Unit) {
+    val bitmap = (drawable as BitmapDrawable).bitmap.copy(Bitmap.Config.ARGB_8888, true)
+
+    Palette.from(bitmap).generate { palette ->
+        palette?.dominantSwatch?.rgb?.let { colorValue ->
+            onFinish(Color(colorValue))
+        }
     }
 }
