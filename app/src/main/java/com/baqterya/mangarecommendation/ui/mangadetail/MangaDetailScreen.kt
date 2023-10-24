@@ -12,10 +12,12 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,21 +25,18 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -46,7 +45,8 @@ import androidx.navigation.NavController
 import coil.compose.SubcomposeAsyncImage
 import com.baqterya.mangarecommendation.R
 import com.baqterya.mangarecommendation.ui.mainmenu.ReadingProgress
-import com.baqterya.mangarecommendation.ui.mainmenu.RecommendationTile
+import com.baqterya.mangarecommendation.util.AutoResizeText
+import com.baqterya.mangarecommendation.util.FontSizeRange
 
 
 @Composable
@@ -82,6 +82,8 @@ fun MangaDetailScreen(
                 .constrainAs(spacer) { start.linkTo(cover.end) })
             Box(modifier = Modifier
                 .clip(RoundedCornerShape(10.dp))
+                .widthIn(0.dp, 230.dp)
+                .heightIn(0.dp, 200.dp)
                 .constrainAs(params) {
                     end.linkTo(parent.end)
                     bottom.linkTo(cover.bottom)
@@ -207,8 +209,54 @@ fun MangaDetailCover(modifier: Modifier) {
 
 @Composable
 fun MangaDetailParamSection() {
-    val fontSize = 16.sp
-    Row(modifier = Modifier
+    val defaultFontSize = 16.sp
+    Column(modifier = Modifier
+        .background(MaterialTheme.colorScheme.surfaceVariant)
+        .padding(5.dp),
+        verticalArrangement = Arrangement.SpaceEvenly
+    ) {
+        AutoResizeText(
+            text = "Ranking: #2",
+            maxLines = 2,
+            fontSizeRange = FontSizeRange(11.sp, defaultFontSize),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(5.dp)
+        )
+        AutoResizeText(
+            text = "Score: 9.30",
+            maxLines = 2,
+            fontSizeRange = FontSizeRange(11.sp, defaultFontSize),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(5.dp)
+        )
+        AutoResizeText(
+            text = "Author: Araki, Hirohiko",
+            maxLines = 2,
+            fontSizeRange = FontSizeRange(11.sp, defaultFontSize),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(5.dp)
+        )
+        AutoResizeText(
+            text = "Chapters: 96",
+            maxLines = 2,
+            fontSizeRange = FontSizeRange(11.sp, defaultFontSize),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(5.dp)
+        )
+        AutoResizeText(
+            text = "Status: Finished",
+            maxLines = 2,
+            fontSizeRange = FontSizeRange(11.sp, defaultFontSize),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(5.dp)
+        )
+    }
+/*    Row(modifier = Modifier
         .background(MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Column(modifier = Modifier
@@ -267,10 +315,12 @@ fun MangaDetailParamSection() {
                 modifier = Modifier
                     .padding(5.dp)
             )
-            Text(
-                text = "Araki, Hirohiko",
-                fontSize = fontSize,
+            AutoResizeText(
+                text = "Araki, HirohikoAraki, HirohikoAraki, Hirohiko",
+                maxLines = 2,
+                fontSizeRange = FontSizeRange(11.sp, fontSize),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
                     .padding(5.dp)
             )
@@ -289,7 +339,7 @@ fun MangaDetailParamSection() {
                     .padding(5.dp)
             )
         }
-    }
+    }*/
 }
 
 @Composable
