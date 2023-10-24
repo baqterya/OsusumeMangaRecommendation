@@ -29,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -45,14 +46,27 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.palette.graphics.Palette
 import com.baqterya.mangarecommendation.R
 import coil.compose.SubcomposeAsyncImage
+import com.baqterya.mangarecommendation.data.remote.responses.Manga
+import com.baqterya.mangarecommendation.util.Resource
 import com.baqterya.mangarecommendation.util.calcDominantColor
 
 @Composable
-fun MainMenuScreen(navController: NavController) {
+fun MainMenuScreen(
+    navController: NavController,
+    viewModel: MainMenuViewModel = hiltViewModel()
+) {
+    val weeklyChallengeManga = produceState<Resource<Manga>>(initialValue = Resource.Loading()) {
+        value = viewModel.getManga(1)
+    }.value
+    val personalChallengeManga = produceState<Resource<Manga>>(initialValue = Resource.Loading()) {
+        value = viewModel.getManga(3)
+    }.value
+
     Surface(
         color = MaterialTheme.colorScheme.surface,
         modifier = Modifier.fillMaxSize(),
@@ -60,20 +74,16 @@ fun MainMenuScreen(navController: NavController) {
         Column {
             Logo()
             //weekly
-            ChallengeTile(
+            ChallengeTileWrapper(
                 tileTitle = "Weekly Challenge",
-                coverArt = R.drawable.dummy_cover,
-                mangaTitle = "Steel Ball Run",
-                currentChapter = 43,
-                totalChapters = 96
+                mangaInfo = weeklyChallengeManga,
+                currentChapter = 33,
             )
             //personal
-            ChallengeTile(
+            ChallengeTileWrapper(
                 tileTitle = "Personal Challenge",
-                coverArt = "https://cdn.myanimelist.net/images/manga/1/157897.jpg",
-                mangaTitle = "Berserk",
+                mangaInfo = personalChallengeManga,
                 currentChapter = 311,
-                totalChapters = 373
             )
             RecommendationsContainer()
         }
@@ -123,12 +133,42 @@ fun Logo() {
 }
 
 @Composable
+fun ChallengeTileWrapper(
+    tileTitle: String,
+    mangaInfo: Resource<Manga>,
+    currentChapter: Int,
+    modifier: Modifier = Modifier,
+    loadingModifier: Modifier = Modifier,
+) {
+    when(mangaInfo) {
+        is Resource.Success -> {
+            ChallengeTile(
+                tileTitle,
+                mangaInfo.data!!,
+                currentChapter
+            )
+        }
+        is Resource.Error -> {
+            Text(
+                text = mangaInfo.message.toString(),
+                color = MaterialTheme.colorScheme.error,
+                modifier = modifier
+            )
+        }
+        is Resource.Loading -> {
+            CircularProgressIndicator(
+                color = MaterialTheme.colorScheme.primary,
+                modifier = loadingModifier
+            )
+        }
+    }
+}
+
+@Composable
 fun ChallengeTile(
     tileTitle: String,
-    coverArt: Any,
-    mangaTitle: String,
+    manga: Manga,
     currentChapter: Int,
-    totalChapters: Int,
 ) {
     val defaultDominantColor = MaterialTheme.colorScheme.surfaceVariant
     var dominantColor by remember {
@@ -163,8 +203,8 @@ fun ChallengeTile(
                 }
         )
         SubcomposeAsyncImage(
-            model = coverArt,
-            contentDescription = mangaTitle,
+            model = manga.data.images.jpg.image_url,
+            contentDescription = manga.data.title,
             modifier = Modifier
                 .height(170.dp)
                 .alpha(0.8f)
@@ -185,7 +225,7 @@ fun ChallengeTile(
             },
         )
         Text(
-            text = "${currentChapter}/${totalChapters}",
+            text = "${currentChapter}/${manga.data.chapters}",
             fontSize = 17.sp,
             modifier = Modifier
                 .padding(10.dp)
@@ -196,7 +236,7 @@ fun ChallengeTile(
         )
         ReadingProgress(
             currentChapter = currentChapter,
-            totalChapters = totalChapters,
+            totalChapters = manga.data.chapters,
             modifier = Modifier
                 .padding(end = 10.dp)
                 .height(12.dp)
@@ -217,6 +257,7 @@ fun ReadingProgress(
     currentChapter: Int,
     totalChapters: Int
 ) {
+    if (totalChapters == 0) return
     var animationPlayed by remember {
         mutableStateOf(false)
     }
