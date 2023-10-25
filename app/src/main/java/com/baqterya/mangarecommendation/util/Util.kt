@@ -135,3 +135,9 @@ fun authorsToString(authors: List<Author>): String {
         }
     }
 }
+
+data class MangaTag(
+    val tagText: String,
+    val backgroundColor: Color,
+    val textColor: Color
+)
