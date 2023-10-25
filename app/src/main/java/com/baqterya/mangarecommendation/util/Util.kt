@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import androidx.palette.graphics.Palette
+import com.baqterya.mangarecommendation.data.remote.responses.Author
 import timber.log.Timber
 
 sealed class Resource<T>(val data: T? = null, val message: String? = null) {
@@ -113,6 +114,24 @@ fun calcDominantColor(drawable: Drawable, onFinish: (Color) -> Unit) {
     Palette.from(bitmap).generate { palette ->
         palette?.dominantSwatch?.rgb?.let { colorValue ->
             onFinish(Color(colorValue))
+        }
+    }
+}
+
+fun authorsToString(authors: List<Author>): String {
+    return when {
+        authors.isEmpty() -> {
+            "Unknown"
+        }
+        authors.size == 1 -> {
+            authors[0].name
+        }
+        else -> {
+            var authorsString = ""
+            for (author in authors) {
+                authorsString = authorsString.plus(author.name).plus("; ")
+            }
+            authorsString
         }
     }
 }
