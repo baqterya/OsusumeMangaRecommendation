@@ -7,7 +7,7 @@ import retrofit2.http.Path
 interface JikanApi {
 
     @GET("manga/{id}")
-    suspend fun getManga(
+    suspend fun getMangaById(
         @Path("id") id: Int
     ): Manga
 

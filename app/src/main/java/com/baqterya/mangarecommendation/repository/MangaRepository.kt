@@ -11,9 +11,9 @@ class MangaRepository @Inject constructor(
     private val api: JikanApi
 ) {
 
-    suspend fun getManga(mangaId: Int): Resource<Manga> {
+    suspend fun getMangaById(mangaId: Int): Resource<Manga> {
         val response = try {
-            api.getManga(mangaId)
+            api.getMangaById(mangaId)
         } catch (e: Exception) {
             return Resource.Error(message="An unknown error occurred while fetching data.")
         }

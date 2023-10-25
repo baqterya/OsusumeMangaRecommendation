@@ -12,7 +12,7 @@ class MainMenuViewModel @Inject constructor(
     private val repository: MangaRepository
 ) : ViewModel() {
 
-    suspend fun getManga(mangaId: Int) : Resource<Manga> {
-        return repository.getManga(mangaId)
+    suspend fun getMangaById(mangaId: Int) : Resource<Manga> {
+        return repository.getMangaById(mangaId)
     }
 }

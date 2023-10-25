@@ -1,8 +1,5 @@
 package com.baqterya.mangarecommendation.ui.mainmenu
 
-import android.graphics.Bitmap
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -39,7 +36,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -48,7 +44,6 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.palette.graphics.Palette
 import com.baqterya.mangarecommendation.R
 import coil.compose.SubcomposeAsyncImage
 import com.baqterya.mangarecommendation.data.remote.responses.Manga
@@ -61,10 +56,10 @@ fun MainMenuScreen(
     viewModel: MainMenuViewModel = hiltViewModel()
 ) {
     val weeklyChallengeManga = produceState<Resource<Manga>>(initialValue = Resource.Loading()) {
-        value = viewModel.getManga(1)
+        value = viewModel.getMangaById(1)
     }.value
     val personalChallengeManga = produceState<Resource<Manga>>(initialValue = Resource.Loading()) {
-        value = viewModel.getManga(3)
+        value = viewModel.getMangaById(3)
     }.value
 
     Surface(
