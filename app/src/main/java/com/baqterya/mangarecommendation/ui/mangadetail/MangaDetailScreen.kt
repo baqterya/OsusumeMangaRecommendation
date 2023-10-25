@@ -1,12 +1,12 @@
 package com.baqterya.mangarecommendation.ui.mangadetail
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,6 +29,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,28 +42,94 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.SubcomposeAsyncImage
-import com.baqterya.mangarecommendation.R
+import com.baqterya.mangarecommendation.data.remote.responses.Data
+import com.baqterya.mangarecommendation.data.remote.responses.Manga
 import com.baqterya.mangarecommendation.ui.mainmenu.ReadingProgress
 import com.baqterya.mangarecommendation.util.AutoResizeText
 import com.baqterya.mangarecommendation.util.FontSizeRange
+import com.baqterya.mangarecommendation.util.Resource
+import com.baqterya.mangarecommendation.util.authorsToString
+import com.baqterya.mangarecommendation.util.MangaTag
 
 
 @Composable
 fun MangaDetailScreen(
     navController: NavController,
-//    dominantColor: Color,
+    dominantColor: Color,
+    mangaId: Int,
+    viewModel: MangaDetailViewModel = hiltViewModel()
+) {
+    val mangaInfo = produceState<Resource<Manga>>(initialValue = Resource.Loading()) {
+        value = viewModel.getMangaById(mangaId)
+    }.value
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(dominantColor)
+    ) {
+        MangaDetailStateWrapper(
+            mangaInfo = mangaInfo,
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.2f)
+                .align(Alignment.TopCenter),
+            loadingModifier = Modifier
+                .size(100.dp)
+                .align(Alignment.Center),
+            navController = navController,
+        )
+    }
+}
+
+@Composable
+fun MangaDetailStateWrapper(
+    mangaInfo: Resource<Manga>,
+    modifier: Modifier,
+    loadingModifier: Modifier,
+    navController: NavController,
+) {
+    when(mangaInfo) {
+        is Resource.Success -> {
+            MangaDetailSection(
+                mangaInfo.data!!,
+                navController
+            )
+        }
+        is Resource.Error -> {
+            Text(
+                text = mangaInfo.message.toString(),
+                color = MaterialTheme.colorScheme.error,
+                modifier = modifier
+            )
+        }
+        is Resource.Loading -> {
+            CircularProgressIndicator(
+                color = MaterialTheme.colorScheme.primary,
+                modifier = loadingModifier
+            )
+        }
+    }
+}
+
+@Composable
+fun MangaDetailSection(
+    manga: Manga,
+    navController: NavController
 ) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF98d21c))
     ) {
-        MangaDetailTopSection(navController, Modifier
-            .fillMaxWidth()
-            .fillMaxHeight(0.2f)
-            .align(Alignment.TopCenter)
+        MangaDetailTopSection(
+            navController,
+            Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.2f)
+                .align(Alignment.TopCenter),
+            manga.data.title,
         )
         ConstraintLayout(
             modifier = Modifier
@@ -71,7 +138,10 @@ fun MangaDetailScreen(
                 .padding(top = 80.dp, start = 18.dp, end = 18.dp)
         ) {
             val (cover, params, progress, spacer, synopsis, tags) = createRefs()
-            MangaDetailCover(modifier = Modifier
+            MangaDetailCover(
+                imageUrl = manga.data.images.jpg.image_url,
+                mangaTitle = manga.data.title,
+                modifier = Modifier
                 .constrainAs(cover) {
                     start.linkTo(parent.start)
                     top.linkTo(parent.top)
@@ -82,7 +152,7 @@ fun MangaDetailScreen(
                 .constrainAs(spacer) { start.linkTo(cover.end) })
             Box(modifier = Modifier
                 .clip(RoundedCornerShape(10.dp))
-                .widthIn(0.dp, 230.dp)
+                .widthIn(0.dp, 220.dp)
                 .heightIn(0.dp, 200.dp)
                 .constrainAs(params) {
                     end.linkTo(parent.end)
@@ -90,7 +160,7 @@ fun MangaDetailScreen(
                     start.linkTo(spacer.end)
                 }
             ) {
-                MangaDetailParamSection()
+                MangaDetailParamSection(manga.data)
             }
             ReadingProgress(
                 modifier = Modifier
@@ -105,16 +175,19 @@ fun MangaDetailScreen(
                 currentChapter = 43,
                 totalChapters = 96
             )
-            Synopsis(modifier = Modifier
-                .padding(top = 25.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .constrainAs(synopsis) {
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                    top.linkTo(progress.bottom)
-                }
+            Synopsis(
+                manga.data.synopsis,
+                modifier = Modifier
+                    .padding(top = 25.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .constrainAs(synopsis) {
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                        top.linkTo(progress.bottom)
+                    }
             )
             TagChipContainer(
+                manga.data,
                 modifier = Modifier
                     .constrainAs(tags) {
                         start.linkTo(synopsis.start)
@@ -127,7 +200,10 @@ fun MangaDetailScreen(
 }
 
 @Composable
-fun Synopsis(modifier: Modifier) {
+fun Synopsis(
+    synopsisText: String,
+    modifier: Modifier,
+) {
     val scrollState = rememberScrollState()
     Box(
         modifier = modifier
@@ -136,11 +212,7 @@ fun Synopsis(modifier: Modifier) {
             .verticalScroll(scrollState)
     ) {
         Text(
-            text = "In the American Old West, the world's greatest race is about to begin. Thousands line up in San Diego to travel over six thousand kilometers for a chance to win the grand prize of fifty million dollars. With the era of the horse reaching its end, contestants are allowed to use any kind of vehicle they wish. Competitors will have to endure grueling conditions, traveling up to a hundred kilometers a day through uncharted wastelands. The Steel Ball Run is truly a one-of-a-kind event.\n" +
-                "\n" +
-                "The youthful Johnny Joestar, a crippled former horse racer, has come to San Diego to watch the start of the race. There he encounters Gyro Zeppeli, a racer with two steel balls at his waist instead of a gun. Johnny witnesses Gyro using one of his steel balls to unleash a fantastical power, compelling a man to fire his gun at himself during a duel. In the midst of the action, Johnny happens to touch the steel ball and feels a power surging through his legs, allowing him to stand up for the first time in two years. Vowing to find the secret of the steel balls, Johnny decides to compete in the race, and so begins his bizarre adventure across America on the Steel Ball Run.\n" +
-                "\n" +
-                "[Written by MAL Rewrite]",
+            text = synopsisText,
             fontSize = 18.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(20.dp)
@@ -151,7 +223,8 @@ fun Synopsis(modifier: Modifier) {
 @Composable
 fun MangaDetailTopSection(
     navController: NavController,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    mangaTitle: String
 ) {
     Box(
         contentAlignment = Alignment.TopStart,
@@ -173,10 +246,10 @@ fun MangaDetailTopSection(
                     navController.popBackStack()
                 }
         )
-        Text(
-            text = "Steel Ball Run",
+        AutoResizeText(
+            text = mangaTitle,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            fontSize = 22.sp,
+            fontSizeRange = FontSizeRange(14.sp, 22.sp),
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .padding(top = 21.dp)
@@ -184,16 +257,19 @@ fun MangaDetailTopSection(
     }
 }
 
-
 @Composable
-fun MangaDetailCover(modifier: Modifier) {
+fun MangaDetailCover(
+    imageUrl: String,
+    mangaTitle: String,
+    modifier: Modifier,
+) {
     Box(
         modifier = modifier
             .clickable { }
     ) {
         SubcomposeAsyncImage(
-            model = R.drawable.dummy_cover,
-            contentDescription = "Steel Ball Run",
+            model = imageUrl,
+            contentDescription = mangaTitle,
             modifier = Modifier
                 .height(200.dp)
                 .clip(RoundedCornerShape(10.dp)),
@@ -208,7 +284,9 @@ fun MangaDetailCover(modifier: Modifier) {
 }
 
 @Composable
-fun MangaDetailParamSection() {
+fun MangaDetailParamSection(
+    mangaData: Data
+) {
     val defaultFontSize = 16.sp
     Column(modifier = Modifier
         .background(MaterialTheme.colorScheme.surfaceVariant)
@@ -216,7 +294,7 @@ fun MangaDetailParamSection() {
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
         AutoResizeText(
-            text = "Ranking: #2",
+            text = "Ranking: #${mangaData.rank}",
             maxLines = 2,
             fontSizeRange = FontSizeRange(11.sp, defaultFontSize),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -224,7 +302,7 @@ fun MangaDetailParamSection() {
             modifier = Modifier.padding(5.dp)
         )
         AutoResizeText(
-            text = "Score: 9.30",
+            text = "Score: ${mangaData.score}",
             maxLines = 2,
             fontSizeRange = FontSizeRange(11.sp, defaultFontSize),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -232,7 +310,7 @@ fun MangaDetailParamSection() {
             modifier = Modifier.padding(5.dp)
         )
         AutoResizeText(
-            text = "Author: Araki, Hirohiko",
+            text = "Author: ${authorsToString(mangaData.authors)}",
             maxLines = 2,
             fontSizeRange = FontSizeRange(11.sp, defaultFontSize),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -240,7 +318,7 @@ fun MangaDetailParamSection() {
             modifier = Modifier.padding(5.dp)
         )
         AutoResizeText(
-            text = "Chapters: 96",
+            text = "Chapters: ${mangaData.chapters}",
             maxLines = 2,
             fontSizeRange = FontSizeRange(11.sp, defaultFontSize),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -248,7 +326,7 @@ fun MangaDetailParamSection() {
             modifier = Modifier.padding(5.dp)
         )
         AutoResizeText(
-            text = "Status: Finished",
+            text = "Status: ${mangaData.status}",
             maxLines = 2,
             fontSizeRange = FontSizeRange(11.sp, defaultFontSize),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -256,114 +334,46 @@ fun MangaDetailParamSection() {
             modifier = Modifier.padding(5.dp)
         )
     }
-/*    Row(modifier = Modifier
-        .background(MaterialTheme.colorScheme.surfaceVariant)
-    ) {
-        Column(modifier = Modifier
-            .padding(10.dp)
-        ) {
-            Text(
-                text = "Ranking",
-                fontSize = fontSize,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-                    .padding(5.dp)
-            )
-            Text(
-                text = "Score",
-                fontSize = fontSize,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-                    .padding(5.dp)
-            )
-            Text(
-                text = "Author",
-                fontSize = fontSize,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-                    .padding(5.dp)
-            )
-            Text(
-                text = "Chapters",
-                fontSize = fontSize,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-                    .padding(5.dp)
-            )
-            Text(
-                text = "Status",
-                fontSize = fontSize,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-                    .padding(5.dp)
-            )
-        }
-        Column(modifier = Modifier
-            .padding(10.dp)
-        ) {
-            Text(
-                text = "#2",
-                fontSize = fontSize,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-                    .padding(5.dp)
-            )
-            Text(
-                text = "9.30",
-                fontSize = fontSize,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-                    .padding(5.dp)
-            )
-            AutoResizeText(
-                text = "Araki, HirohikoAraki, HirohikoAraki, Hirohiko",
-                maxLines = 2,
-                fontSizeRange = FontSizeRange(11.sp, fontSize),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .padding(5.dp)
-            )
-            Text(
-                text = "96",
-                fontSize = fontSize,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-                    .padding(5.dp)
-            )
-            Text(
-                text = "Finished",
-                fontSize = fontSize,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-                    .padding(5.dp)
-            )
-        }
-    }*/
 }
 
 @Composable
-fun TagChipContainer(modifier: Modifier) {
-    val genreColor = MaterialTheme.colorScheme.primary
-    val themeColor = MaterialTheme.colorScheme.primaryContainer
-    val demographicsColor = MaterialTheme.colorScheme.tertiary
-    val testList = listOf(
-        "Action",
-        "Adventure",
-        "Mystery",
-        "Supernatural",
-        "Historical",
-        "Seinen",
-        "Shonen",
-    )
+fun TagChipContainer(
+    mangaData: Data,
+    modifier: Modifier
+) {
+    val tagList = mutableListOf<MangaTag>()
+    for (demographic in mangaData.demographics) {
+        tagList.add(MangaTag(
+            demographic.name,
+            MaterialTheme.colorScheme.primary,
+            MaterialTheme.colorScheme.onPrimary
+        ))
+    }
+    for (genre in mangaData.genres) {
+        tagList.add(MangaTag(
+            genre.name,
+            MaterialTheme.colorScheme.secondary,
+            MaterialTheme.colorScheme.onSecondary
+        ))
+    }
+    for (theme in mangaData.themes) {
+        tagList.add(MangaTag(
+            theme.name,
+            MaterialTheme.colorScheme.tertiary,
+            MaterialTheme.colorScheme.onTertiary
+        ))
+    }
     LazyRow(
         contentPadding = PaddingValues(15.dp),
         horizontalArrangement = Arrangement.spacedBy(20.dp),
         modifier = modifier
             .height(180.dp)
     ) {
-        items(7) {
-            TagChip(testList[it], themeColor, MaterialTheme.colorScheme.onPrimaryContainer)
+        items(tagList.size) {index ->
+            TagChip(tagList[index].tagText,
+                tagList[index].backgroundColor,
+                tagList[index].textColor
+            )
         }
     }
 }
@@ -374,7 +384,10 @@ fun TagChip(tag: String, typeColor: Color, textColor: Color) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(5.dp))
+            .border(2.5.dp, Color.Black)
             .background(typeColor)
             .padding(10.dp)
-    ){ Text(text = tag, color = textColor) }
+    ){
+        Text(text = tag, color = textColor)
+    }
 }
