@@ -36,6 +36,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -73,12 +74,14 @@ fun MainMenuScreen(
                 tileTitle = "Weekly Challenge",
                 mangaInfo = weeklyChallengeManga,
                 currentChapter = 33,
+                navController = navController
             )
             //personal
             ChallengeTileWrapper(
                 tileTitle = "Personal Challenge",
                 mangaInfo = personalChallengeManga,
                 currentChapter = 311,
+                navController = navController
             )
             RecommendationsContainer()
         }
@@ -134,13 +137,15 @@ fun ChallengeTileWrapper(
     currentChapter: Int,
     modifier: Modifier = Modifier,
     loadingModifier: Modifier = Modifier,
+    navController: NavController,
 ) {
     when(mangaInfo) {
         is Resource.Success -> {
             ChallengeTile(
                 tileTitle,
                 mangaInfo.data!!,
-                currentChapter
+                currentChapter,
+                navController,
             )
         }
         is Resource.Error -> {
@@ -164,6 +169,7 @@ fun ChallengeTile(
     tileTitle: String,
     manga: Manga,
     currentChapter: Int,
+    navController: NavController,
 ) {
     val defaultDominantColor = MaterialTheme.colorScheme.surfaceVariant
     var dominantColor by remember {
@@ -183,7 +189,11 @@ fun ChallengeTile(
                     )
                 )
             )
-            .clickable { }
+            .clickable {
+                navController.navigate(
+                    "manga_detail_screen/${dominantColor.toArgb()}/${manga.data.mal_id}"
+                )
+            }
     ) {
         val (progressBar, coverImage, topText, chapterCounterText) = createRefs()
 
